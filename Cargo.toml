@@ -4,3 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+worktable = { git = "https://github.com/pathscale/WorkTable.git", ref = "a66de55572ed0a2c9a2e7e31aaf31873516f1bc0" }
+rkyv = "0.7.42"
+derive_more = "*"
+eyre = "*"
