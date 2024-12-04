@@ -27,15 +27,25 @@ worktable!(
         from_address: String,
         to_address: String,
         internal_transactions: String,
-        value: u64,
-        fee: u64,
-        gas_price: u64
+        // Splitting U256 into four u64 parts for value
+        value_high: u64,
+        value_mid_high: u64,
+        value_mid_low: u64,
+        value_low: u64,
+        // Similarly for fee and gas_price
+        fee_high: u64,
+        fee_mid_high: u64,
+        fee_mid_low: u64,
+        fee_low: u64,
+        gas_price_high: u64,
+        gas_price_mid_high: u64,
+        gas_price_mid_low: u64,
+        gas_price_low: u64,
     }
     indexes: {
         hash_idx: hash
     }
 );
-
 worktable!(
     name: Address,
     columns: {
@@ -94,3 +104,4 @@ worktable!(
         token_contract_hash_idx: token_contract_hash
     }
 );
+

@@ -1,10 +1,29 @@
 use ethers::{prelude::BlockId, providers::Middleware};
+
 use spice_backend::api::*;
+use std::mem::size_of_val;
 use spice_backend::tables::*;
 use std::error::Error;
 use std::{env, fs::File, io::BufWriter};
 
+use ethers::types::U256;
 use std::sync::atomic::{AtomicU64, Ordering};
+
+fn u256_to_u64_quads(value: U256) -> [u64; 4] {
+    let mut quads = [0u64; 4];
+
+    for i in 0..4 {
+        quads[3 - i] = (value >> (i * 64)).low_u64();
+    }
+
+    quads
+}
+pub fn size_blocks_and_transactions(block_table: BlockWorkTable, tx_table: TransactionWorkTable) -> (usize, usize) {
+    let block_size = block_table.get().map(|block| size_of_val(block)).sum();
+    let tx_size = tx_table.list().map(|tx| size_of_val(tx)).sum();
+
+    (block_size, tx_size)
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -38,7 +57,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     status: "fetched".to_string(),
                     timestamp_s: block.timestamp.as_u64(),
                     transactions: block_json,
-                    eth_price_usd_cents: 0, //TODO:  add cmc here
+                    eth_price_usd_cents: 0,
+                    //TODO:  add cmc here
                 })?;
                 println!("Block inserted with NUMBER: {}", block_number);
 
@@ -46,6 +66,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
                 for tx in &block.transactions {
                     let tx_id = current_id.fetch_add(1, Ordering::SeqCst);
+                    let value_quads = u256_to_u64_quads(tx.value);
+                    let fee_quads = u256_to_u64_quads(
+                        U256::from(tx.gas.as_u64()) * tx.gas_price.unwrap_or_default(),
+                    );
+                    let gas_price_quads = u256_to_u64_quads(tx.gas_price.unwrap_or_default());
 
                     println!("Transaction details: {:?}", tx);
 
@@ -60,9 +85,18 @@ async fn main() -> Result<(), Box<dyn Error>> {
                             .to
                             .map_or_else(|| "".to_string(), |addr| addr.to_string()),
                         internal_transactions: "".to_string(), //need to fetch these
-                        value: tx.value.as_u64(),
-                        fee: tx.gas.as_u64() * tx.gas_price.unwrap_or_default().as_u64(),
-                        gas_price: tx.gas_price.unwrap_or_default().as_u64(),
+                        value_high: value_quads[3],
+                        value_mid_high: value_quads[2],
+                        value_mid_low: value_quads[1],
+                        value_low: value_quads[0],
+                        fee_high: fee_quads[3],
+                        fee_mid_high: fee_quads[2],
+                        fee_mid_low: fee_quads[1],
+                        fee_low: fee_quads[0],
+                        gas_price_high: gas_price_quads[3],
+                        gas_price_mid_high: gas_price_quads[2],
+                        gas_price_mid_low: gas_price_quads[1],
+                        gas_price_low: gas_price_quads[0],
                     })?;
                     println!("Transaction inserted with ID: {}", tx_id);
 

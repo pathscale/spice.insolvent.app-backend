@@ -1,5 +1,5 @@
 use super::models::*;
-use crate::{AssetInfoClient, AssetPriceByPeriod};
+use crate::shared::{AssetInfoClient, AssetPriceByPeriod};
 use async_trait::async_trait;
 use chrono::{Duration, NaiveDate, Utc};
 use dashmap::DashMap;
