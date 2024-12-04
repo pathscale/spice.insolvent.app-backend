@@ -1,0 +1,30 @@
+[package]
+name = "api"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+eyre = "0.6.1"
+reqwest = { version = "*", default-features = false, features = [
+	"rustls-tls",
+	"serde_json",
+	"json",
+	"gzip",
+	"deflate",
+] }
+serde_json = "*"
+web3 = "*"
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+tracing = "*"
+lru = "0.12.1"
+chrono = "0.4.24"
+serde_path_to_error = "0.1.11"
+async-trait = "*"
+ethers = {workspace = true}
+dashmap = "5.5.3"
+endpoint-libs ={workspace = true}
+[lib]
+path = "lib.rs"
