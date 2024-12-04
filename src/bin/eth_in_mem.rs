@@ -18,12 +18,6 @@ fn u256_to_u64_quads(value: U256) -> [u64; 4] {
 
     quads
 }
-pub fn size_blocks_and_transactions(block_table: BlockWorkTable, tx_table: TransactionWorkTable) -> (usize, usize) {
-    let block_size = block_table.get().map(|block| size_of_val(block)).sum();
-    let tx_size = tx_table.list().map(|tx| size_of_val(tx)).sum();
-
-    (block_size, tx_size)
-}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
