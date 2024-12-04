@@ -6,7 +6,6 @@ use std::{env, fs::File, io::BufWriter};
 
 use std::sync::atomic::{AtomicU64, Ordering};
 
-
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let args: Vec<String> = env::args().collect();
@@ -33,26 +32,22 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 let block_json = serde_json::to_string(&block)?;
                 println!("Block JSON: {}", block_json);
 
-                // Insert block into Block table
                 block_table.insert(BlockRow {
                     id: block_id,
                     number: block.number.unwrap_or_default().as_u64(),
                     status: "fetched".to_string(),
                     timestamp_s: block.timestamp.as_u64(),
                     transactions: block_json,
-                    eth_price_usd_cents: 0, // Placeholder; you'd need to calculate this somehow
+                    eth_price_usd_cents: 0, //TODO:  add cmc here
                 })?;
-                println!("Block inserted with ID: {}", block_id);
+                println!("Block inserted with NUMBER: {}", block_number);
 
-                // Print block table after insertion
                 println!("Block table after insertion: {:?}", block_table);
 
-                // Insert transactions into Transaction table
                 for tx in &block.transactions {
                     let tx_id = current_id.fetch_add(1, Ordering::SeqCst);
-                    let tx_json = serde_json::to_string(tx)?;
+
                     println!("Transaction details: {:?}", tx);
-                    println!("Transaction JSON: {}", tx_json);
 
                     tx_table.insert(TransactionRow {
                         id: tx_id,
@@ -61,15 +56,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         block_number: block_id,
                         timestamp_s: block.timestamp.as_u64(),
                         from_address: tx.from.to_string(),
-                        to_address: tx.to.map_or_else(|| "".to_string(), |addr| addr.to_string()),
-                        internal_transactions: "".to_string(), // Placeholder; would need to fetch these
+                        to_address: tx
+                            .to
+                            .map_or_else(|| "".to_string(), |addr| addr.to_string()),
+                        internal_transactions: "".to_string(), //need to fetch these
                         value: tx.value.as_u64(),
                         fee: tx.gas.as_u64() * tx.gas_price.unwrap_or_default().as_u64(),
                         gas_price: tx.gas_price.unwrap_or_default().as_u64(),
                     })?;
                     println!("Transaction inserted with ID: {}", tx_id);
 
-                    // Print transaction table after each insertion
                     println!("Transaction table after insertion: {:?}", tx_table);
                 }
             }
@@ -77,5 +73,5 @@ async fn main() -> Result<(), Box<dyn Error>> {
             Err(e) => eprintln!("Error fetching block {}: {}", block_number, e),
         }
     }
-        Ok(())
+    Ok(())
 }
