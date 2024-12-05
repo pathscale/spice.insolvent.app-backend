@@ -97,7 +97,7 @@ async fn main() -> eyre::Result<()> {
                     eth_price_usd_cents: 0, //TODO: use cmc lookup here
                 })?;
 
-                if block_number % 1000 == 0 {
+                if block_number % 10_000 == 0 {
                     info!("Block inserted with NUMBER: {}", block_number);
                 }
 
