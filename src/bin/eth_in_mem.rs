@@ -27,6 +27,7 @@ async fn main() -> eyre::Result<()> {
 
     let args: Vec<String> = env::args().collect();
     if args.len() != 2 {
+        println!("args: {args:?}");
         panic!("Accepts two arguments: start_block end_block");
     }
 
