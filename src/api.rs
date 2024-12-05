@@ -4,6 +4,9 @@ use eyre::{Context, ContextCompat};
 use serde::Serialize;
 use std::ops::Deref;
 
+mod cmc;
+mod assets;
+mod models;
 
 
 pub type BlockWithTx = Block<Transaction>;

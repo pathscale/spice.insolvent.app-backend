@@ -14,7 +14,10 @@ serde_json = "1.0.133"
 tokio = { version = "1.33.0", features = ["full"] }
 dashmap = "6.1.0"
 tracing = "0.1.41"
-reqwest = { version = "0.12.9", default-features = false, features = ["rustls-tls"] }
+reqwest = { version = "0.12.9", default-features = false, features = ["rustls-tls",
+	"json",
+	"gzip",
+	"deflate",] }
 lru = "0.12.5"
 async-trait = "0.1.83"
 web3 = "0.19.0"
@@ -22,3 +25,5 @@ chrono = "0.4.38"
 serde_path_to_error = "0.1.16"
 ethnum = "1.5.0"
 tracing-subscriber = "0.3.19"
+endpoint-libs = {git = "https://github.com/pathscale/endpoint-libs.git", ref = "e864d599370d6f2dee8a55da920671254e98993f"}
+
