@@ -47,7 +47,7 @@ async fn main() -> eyre::Result<()> {
             Ok(Some(block)) => {
                 let block_id = current_id.fetch_add(1, Ordering::SeqCst);
 
-                info!("Processing block: {:?}", block.number);
+                //info!("Processing block: {:?}", block.number);
                 let mut tx_ids: Vec<u64> = vec![];
 
                 for tx in &block.transactions {
