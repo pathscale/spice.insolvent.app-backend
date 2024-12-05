@@ -26,8 +26,8 @@ async fn main() -> eyre::Result<()> {
     tracing::subscriber::set_global_default(subscriber)?;
 
     let args: Vec<String> = env::args().collect();
+    println!("args: {args:?}");
     if args.len() != 4 {
-        println!("args: {args:?}");
         panic!("Accepts two arguments: start_block end_block");
     }
 
