@@ -4,7 +4,7 @@ use ethers::types::U256;
 use spice_backend::api::*;
 use spice_backend::tables::*;
 use std::env;
-use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::atomic::{AtomicU32, Ordering};
 use std::time::{Duration, SystemTime};
 use tracing::{error, info};
 use tracing_subscriber::FmtSubscriber;
@@ -32,15 +32,15 @@ async fn main() -> eyre::Result<()> {
         panic!("Accepts two arguments: start_block end_block");
     }
 
-    let start_block = args[2].parse::<u64>()?;
-    let end_block = args[3].parse::<u64>()?;
+    let start_block = args[2].parse::<u32>()?;
+    let end_block = args[3].parse::<u32>()?;
     info!("Processing blocks from {} to {}", start_block, end_block);
     let url = "http://127.0.0.1:8545".to_string();
     let api = EthersClient::new(&url, Some("https://eth.llamarpc.com"));
 
     let block_table = BlockWorkTable::default();
     let tx_table = TransactionWorkTable::default();
-    let current_id = AtomicU64::new(0);
+    let current_id = AtomicU32::new(0);
 
     let mut num_transactions: u128 = 0;
 
@@ -49,12 +49,12 @@ async fn main() -> eyre::Result<()> {
 
     for block_number in start_block..=end_block {
 
-        match api.get_block_with_txs(BlockId::from(block_number)).await {
+        match api.get_block_with_txs(BlockId::from(block_number as u64)).await {
             Ok(Some(block)) => {
                 let block_id = current_id.fetch_add(1, Ordering::SeqCst);
                 
                 //info!("Processing block: {:?}", block.number);
-                let mut tx_ids: Vec<u64> = vec![];
+                let mut tx_ids: Vec<u32> = vec![];
                 
                 for tx in &block.transactions {
                     num_transactions += 1;
@@ -73,7 +73,7 @@ async fn main() -> eyre::Result<()> {
                         hash: format!("{:?}", tx.hash),
                         status: "processed".to_string(),
                         block_number,
-                        timestamp_s: block.timestamp.as_u64(),
+                        timestamp_s: block.timestamp.as_u32(),
                         from_address: format!("{:?}",tx.from),
                         to_address: format!("{:?}", tx.to),
                         internal_transactions: "".to_string(), //TODO: this needs to be fetched
@@ -109,9 +109,9 @@ async fn main() -> eyre::Result<()> {
             
                 block_table.insert(BlockRow {
                     id: block_id,
-                    number: block.number.unwrap_or_default().as_u64(),
-                    status: "fetched".to_string(),
-                    timestamp_s: block.timestamp.as_u64(),
+                    number: block.number.unwrap_or_default().as_u32(),
+                    status: 1u8,
+                    timestamp_s: block.timestamp.as_u32(),
                     transactions: serde_json::to_string(&tx_ids)?,
                     eth_price_usd_cents: 0, //TODO: use cmc lookup here
                 })?;

@@ -4,10 +4,10 @@ use worktable::worktable;
 worktable!(
     name: Block,
     columns: {
-        id: u64 primary_key autoincrement,
-        number: u64,
-        status: String,
-        timestamp_s: u64,
+        id: u32 primary_key autoincrement,
+        number: u32,
+        status: u8,
+        timestamp_s: u32,
         transactions: String,
         eth_price_usd_cents: u32,
     }
@@ -19,11 +19,11 @@ worktable!(
 worktable!(
     name: Transaction,
     columns: {
-        id: u64 primary_key autoincrement,
+        id: u32 primary_key autoincrement,
         hash: String,
         status: String,
-        block_number: u64,
-        timestamp_s: u64,
+        block_number: u32,
+        timestamp_s: u32,
         from_address: String,
         to_address: String,
         internal_transactions: String,
