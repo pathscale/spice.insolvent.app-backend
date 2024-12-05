@@ -5,7 +5,7 @@ use spice_backend::api::*;
 use spice_backend::tables::*;
 use std::env;
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::time::Duration;
+use std::time::{Duration, SystemTime};
 use tracing::{error, info};
 use tracing_subscriber::FmtSubscriber;
 
@@ -42,15 +42,23 @@ async fn main() -> eyre::Result<()> {
     let tx_table = TransactionWorkTable::default();
     let current_id = AtomicU64::new(0);
 
+    let mut num_transactions: u128 = 0;
+
+    let mut last_time_1k_transactions = SystemTime::now();
+    let mut transactions_since_last_timing_event = 0;
+
     for block_number in start_block..=end_block {
+
         match api.get_block_with_txs(BlockId::from(block_number)).await {
             Ok(Some(block)) => {
+                transactions_since_last_timing_event += 1;
                 let block_id = current_id.fetch_add(1, Ordering::SeqCst);
-
+                
                 //info!("Processing block: {:?}", block.number);
                 let mut tx_ids: Vec<u64> = vec![];
-
+                
                 for tx in &block.transactions {
+                    num_transactions += 1;
                     let tx_id = current_id.fetch_add(1, Ordering::SeqCst);
                     tx_ids.push(tx_id);
                     let value_quads = u256_to_u64_quads(tx.value);
@@ -86,6 +94,17 @@ async fn main() -> eyre::Result<()> {
                     //info!("Transaction inserted with ID: {}", tx_id);
 
                     //info!("Transaction table after insertion:\n{:#?}", tx_table);
+                    if transactions_since_last_timing_event == 1000 {
+                        transactions_since_last_timing_event = 0;
+                        let now = SystemTime::now();
+                        let time_passed = now.duration_since(last_time_1k_transactions)?;
+                        last_time_1k_transactions = now;
+                        info!("Processing: {} Transactions/sec", 1000/time_passed.as_secs())
+                    }
+
+                    if num_transactions % 10_000 == 0 {
+                        info!("Processed {num_transactions} transactions");
+                    }
                 }
             
                 block_table.insert(BlockRow {
@@ -97,9 +116,9 @@ async fn main() -> eyre::Result<()> {
                     eth_price_usd_cents: 0, //TODO: use cmc lookup here
                 })?;
 
-                if block_number % 10_000 == 0 {
-                    info!("Block inserted with NUMBER: {}", block_number);
-                }
+                // if block_number % 10_000 == 0 {
+                //     info!("Block inserted with NUMBER: {}", block_number);
+                // }
 
                 //info!("Block table after insertion:\n{:#?}", block_table);
             }
