@@ -104,6 +104,7 @@ async fn main() -> eyre::Result<()> {
                                 let transactions_per_second = 1000 / time_passed.as_secs();
                                 info!("Processing: {} Transactions/sec", transactions_per_second);
                             }
+                            info!("setting timer time");
                             last_time_1k_transactions = now;
                         }
                     }
