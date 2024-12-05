@@ -28,8 +28,8 @@ async fn check_memory_usage(sys: Arc<Mutex<System>>) {
 
     let pid = process::id();
     if let Some(process) = sys.process(Pid::from(pid as usize)) {
-        let memory_usage = process.memory() / 1_000_000;  // Memory usage in megabytes
-        println!("Current process (PID: {}): {} KB of memory used", pid, memory_usage);
+        let memory_usage = process.memory() / 1_048_576 ;  // Memory usage in megabytes
+        println!("Current process (PID: {}): {} MB of memory used", pid, memory_usage);
     } else {
         println!("Process not found");
     }
