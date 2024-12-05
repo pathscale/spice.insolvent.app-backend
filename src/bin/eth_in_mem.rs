@@ -22,7 +22,7 @@ fn u256_to_u64_quads(value: U256) -> [u64; 4] {
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
     let subscriber = FmtSubscriber::builder()
-        .with_max_level(tracing::Level::ERROR) //set this to info to debug
+        .with_max_level(tracing::Level::INFO) //set this to info to debug
         .finish();
     tracing::subscriber::set_global_default(subscriber)?;
 
