@@ -5,6 +5,7 @@ use spice_backend::api::*;
 use spice_backend::tables::*;
 use std::env;
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::time::Duration;
 use tracing::{error, info};
 use tracing_subscriber::FmtSubscriber;
 
@@ -106,5 +107,7 @@ async fn main() -> eyre::Result<()> {
             Err(e) => error!("Error fetching block {}: {}", block_number, e),
         }
     }
-    Ok(())
+    loop {
+        tokio::time::sleep(Duration::from_secs(10)).await;
+    }
 }
