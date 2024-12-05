@@ -99,6 +99,7 @@ async fn main() -> eyre::Result<()> {
                     if transactions_since_last_timing_event >= 1000 {
                         transactions_since_last_timing_event = 0;
                         let now = SystemTime::now();
+                        info!("now since previous check: now: {now:?} -> prev: {last_time_1k_transactions:?}");
                         if let Ok(time_passed) = now.duration_since(last_time_1k_transactions) {
                             if time_passed.as_secs() > 0 {
                                 let transactions_per_second = 1000 / time_passed.as_secs();
