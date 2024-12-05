@@ -3,7 +3,10 @@ use ethers::{prelude::BlockId, providers::Middleware};
 use ethers::types::U256;
 use spice_backend::api::*;
 use spice_backend::tables::*;
-use std::env;
+use sysinfo::{Pid, System};
+use tokio::sync::Mutex;
+use std::sync::Arc;
+use std::{env, process};
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::time::{Duration, SystemTime};
 use tracing::{error, info};
@@ -17,6 +20,19 @@ fn u256_to_u64_quads(value: U256) -> [u64; 4] {
     }
 
     quads
+}
+
+async fn check_memory_usage(sys: Arc<Mutex<System>>) {
+    let mut sys = sys.lock().await;
+    sys.refresh_all();
+
+    let pid = process::id();
+    if let Some(process) = sys.process(Pid::from(pid as usize)) {
+        let memory_usage = process.memory() / 1000;  // Memory usage in kilobytes
+        println!("Current process (PID: {}): {} KB of memory used", pid, memory_usage);
+    } else {
+        println!("Process not found");
+    }
 }
 
 #[tokio::main]
@@ -46,6 +62,9 @@ async fn main() -> eyre::Result<()> {
 
     let mut last_time = SystemTime::now();
     let mut txs_at_last_timer = num_transactions;
+
+    // Create a new System object
+    let mut sys = Arc::new(Mutex::new(System::new_all()));
 
     for block_number in start_block..=end_block {
 
@@ -100,6 +119,12 @@ async fn main() -> eyre::Result<()> {
                         last_time = now;
                         info!("Processing {} tps", num_transactions - txs_at_last_timer);
                         txs_at_last_timer = num_transactions;
+
+                        let sysclone = sys.clone();
+
+                        tokio::spawn(async move {
+                            check_memory_usage(sysclone).await;
+                        });
                     }
 
                     if num_transactions % 10_000 == 0 {
