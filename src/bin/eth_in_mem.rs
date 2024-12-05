@@ -44,8 +44,8 @@ async fn main() -> eyre::Result<()> {
 
     let mut num_transactions: u128 = 0;
 
-    let mut last_time_1k_transactions = SystemTime::now();
-    let mut transactions_since_last_timing_event = 0;
+    let mut last_time = SystemTime::now();
+    let mut txs_at_last_timer = num_transactions;
 
     for block_number in start_block..=end_block {
 
@@ -57,7 +57,6 @@ async fn main() -> eyre::Result<()> {
                 let mut tx_ids: Vec<u64> = vec![];
                 
                 for tx in &block.transactions {
-                    transactions_since_last_timing_event += 1;
                     num_transactions += 1;
                     let tx_id = current_id.fetch_add(1, Ordering::SeqCst);
                     tx_ids.push(tx_id);
@@ -96,18 +95,11 @@ async fn main() -> eyre::Result<()> {
                     //info!("Transaction table after insertion:\n{:#?}", tx_table);
     //                 info!("transactions_since_last_timing_event: {}",
     // transactions_since_last_timing_event);
-                    if transactions_since_last_timing_event >= 1000 {
-                        transactions_since_last_timing_event = 0;
-                        let now = SystemTime::now();
-                        info!("now since previous check: now: {now:?} -> prev: {last_time_1k_transactions:?}");
-                        if let Ok(time_passed) = now.duration_since(last_time_1k_transactions) {
-                            if time_passed.as_millis() > 0 {
-                                let transactions_per_milli_second = 1000 / time_passed.as_millis();
-                                info!("Processing: {} Transactions/sec", transactions_per_milli_second * 1000);
-                            }
-                            info!("setting timer time");
-                            last_time_1k_transactions = now;
-                        }
+                    let now = SystemTime::now();
+                    if SystemTime::now().duration_since(last_time)?.as_secs() >= 1 {
+                        last_time = now;
+                        info!("Processing {} tps", num_transactions - txs_at_last_timer);
+                        txs_at_last_timer = num_transactions;
                     }
 
                     if num_transactions % 10_000 == 0 {
