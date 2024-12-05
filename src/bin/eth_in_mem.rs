@@ -94,9 +94,9 @@ async fn main() -> eyre::Result<()> {
                     //info!("Transaction inserted with ID: {}", tx_id);
 
                     //info!("Transaction table after insertion:\n{:#?}", tx_table);
-                    info!("transactions_since_last_timing_event: {}",
-    transactions_since_last_timing_event);
-                    if transactions_since_last_timing_event == 1000 {
+    //                 info!("transactions_since_last_timing_event: {}",
+    // transactions_since_last_timing_event);
+                    if transactions_since_last_timing_event >= 1000 {
                         transactions_since_last_timing_event = 0;
                         let now = SystemTime::now();
                         if let Ok(time_passed) = now.duration_since(last_time_1k_transactions) {
