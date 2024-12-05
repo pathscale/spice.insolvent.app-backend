@@ -31,8 +31,8 @@ async fn main() -> eyre::Result<()> {
         panic!("Accepts two arguments: start_block end_block");
     }
 
-    let start_block = args[1].parse::<u64>()?;
-    let end_block = args[2].parse::<u64>()?;
+    let start_block = args[2].parse::<u64>()?;
+    let end_block = args[3].parse::<u64>()?;
     info!("Processing blocks from {} to {}", start_block, end_block);
     let url = "http://127.0.0.1:8545".to_string();
     let api = EthersClient::new(&url, Some("https://eth.llamarpc.com"));
