@@ -48,9 +48,6 @@ async fn main() -> eyre::Result<()> {
                 let block_id = current_id.fetch_add(1, Ordering::SeqCst);
 
                 info!("Processing block: {:?}", block.number);
-                let block_json = serde_json::to_string(&block)?;
-                info!("Block JSON: {}", block_json);
-
                 let mut tx_ids: Vec<u64> = vec![];
 
                 for tx in &block.transactions {
@@ -62,7 +59,7 @@ async fn main() -> eyre::Result<()> {
                     );
                     let gas_price_quads = u256_to_u64_quads(tx.gas_price.unwrap_or_default());
 
-                    info!("Transaction details: {:?}", tx);
+                    //info!("Transaction details: {:?}", tx);
 
                     tx_table.insert(TransactionRow {
                         id: tx_id,
@@ -86,9 +83,9 @@ async fn main() -> eyre::Result<()> {
                         gas_price_mid_low: gas_price_quads[1],
                         gas_price_low: gas_price_quads[0],
                     })?;
-                    info!("Transaction inserted with ID: {}", tx_id);
+                    //info!("Transaction inserted with ID: {}", tx_id);
 
-                    info!("Transaction table after insertion:\n{:#?}", tx_table);
+                    //info!("Transaction table after insertion:\n{:#?}", tx_table);
                 }
             
                 block_table.insert(BlockRow {
@@ -101,7 +98,7 @@ async fn main() -> eyre::Result<()> {
                 })?;
                 info!("Block inserted with NUMBER: {}", block_number);
 
-                info!("Block table after insertion:\n{:#?}", block_table);
+                //info!("Block table after insertion:\n{:#?}", block_table);
             }
             Ok(None) => error!("Block {} not found", block_number),
             Err(e) => error!("Error fetching block {}: {}", block_number, e),
