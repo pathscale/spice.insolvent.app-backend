@@ -107,6 +107,7 @@ async fn main() -> eyre::Result<()> {
             Err(e) => error!("Error fetching block {}: {}", block_number, e),
         }
     }
+    info!("Processed all blocks");
     loop {
         tokio::time::sleep(Duration::from_secs(10)).await;
     }
