@@ -51,13 +51,13 @@ async fn main() -> eyre::Result<()> {
 
         match api.get_block_with_txs(BlockId::from(block_number)).await {
             Ok(Some(block)) => {
-                transactions_since_last_timing_event += 1;
                 let block_id = current_id.fetch_add(1, Ordering::SeqCst);
                 
                 //info!("Processing block: {:?}", block.number);
                 let mut tx_ids: Vec<u64> = vec![];
                 
                 for tx in &block.transactions {
+                    transactions_since_last_timing_event += 1;
                     num_transactions += 1;
                     let tx_id = current_id.fetch_add(1, Ordering::SeqCst);
                     tx_ids.push(tx_id);
