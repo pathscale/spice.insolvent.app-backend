@@ -1,16 +1,32 @@
-use ethers::{prelude::BlockId, providers::Middleware};
-
+use alloy_primitives::bytes;
 use ethers::types::U256;
+use ethers::{prelude::BlockId, providers::Middleware};
 use spice_backend::api::*;
 use spice_backend::tables::*;
+use std::sync::atomic::{AtomicU32, Ordering};
+use std::sync::Arc;
+use std::time::{Duration, SystemTime};
+use std::{env, process};
 use sysinfo::{Pid, System};
 use tokio::sync::Mutex;
-use std::sync::Arc;
-use std::{env, process};
-use std::sync::atomic::{AtomicU32, Ordering};
-use std::time::{Duration, SystemTime};
 use tracing::{error, info};
 use tracing_subscriber::FmtSubscriber;
+use clap::Parser;
+
+
+
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+       #[arg(short, long)]
+    start_block: u32,
+
+        #[arg(short, long)]
+    end_block: u32,
+
+    #[arg(short, long)]
+    url: String,
+}
 
 fn u256_to_u64_quads(value: U256) -> [u64; 4] {
     let mut quads = [0u64; 4];
@@ -28,8 +44,11 @@ async fn check_memory_usage(sys: Arc<Mutex<System>>) {
 
     let pid = process::id();
     if let Some(process) = sys.process(Pid::from(pid as usize)) {
-        let memory_usage = process.memory() / 1_048_576 ;  // Memory usage in megabytes
-        println!("Current process (PID: {}): {} MB of memory used", pid, memory_usage);
+        let memory_usage = process.memory() / 1_048_576; // Memory usage in megabytes
+        println!(
+            "Current process (PID: {}): {} MB of memory used",
+            pid, memory_usage
+        );
     } else {
         println!("Process not found");
     }
@@ -42,14 +61,14 @@ async fn main() -> eyre::Result<()> {
         .finish();
     tracing::subscriber::set_global_default(subscriber)?;
 
-    let args: Vec<String> = env::args().collect();
+    let args =  Args::parse();
     println!("args: {args:?}");
     if args.len() != 4 {
         panic!("Accepts two arguments: start_block end_block");
     }
 
-    let start_block = args[2].parse::<u32>()?;
-    let end_block = args[3].parse::<u32>()?;
+    let start_block = args.start_block;
+    let end_block = args.end_block;
     info!("Processing blocks from {} to {}", start_block, end_block);
     let url = "http://127.0.0.1:8545".to_string();
     let api = EthersClient::new(&url, Some("https://eth.llamarpc.com"));
@@ -67,14 +86,16 @@ async fn main() -> eyre::Result<()> {
     let mut sys = Arc::new(Mutex::new(System::new_all()));
 
     for block_number in start_block..=end_block {
-
-        match api.get_block_with_txs(BlockId::from(block_number as u64)).await {
+        match api
+            .get_block_with_txs(BlockId::from(block_number as u64))
+            .await
+        {
             Ok(Some(block)) => {
                 let block_id = current_id.fetch_add(1, Ordering::SeqCst);
-                
+
                 //info!("Processing block: {:?}", block.number);
                 let mut tx_ids: Vec<u32> = vec![];
-                
+
                 for tx in &block.transactions {
                     num_transactions += 1;
                     let tx_id = current_id.fetch_add(1, Ordering::SeqCst);
@@ -89,12 +110,12 @@ async fn main() -> eyre::Result<()> {
 
                     tx_table.insert(TransactionRow {
                         id: tx_id,
-                        hash: format!("{:?}", tx.hash),
+                        hash: tx.hash.into(),
                         status: "processed".to_string(),
                         block_number,
                         timestamp_s: block.timestamp.as_u32(),
-                        from_address: format!("{:?}",tx.from),
-                        to_address: format!("{:?}", tx.to),
+                        from_address: tx.from.into(),
+                        to_address: tx.to.map_or([0u8; 20], |h160| h160.into()),
                         internal_transactions: "".to_string(), //TODO: this needs to be fetched
                         value_high: value_quads[3],
                         value_mid_high: value_quads[2],
@@ -112,8 +133,8 @@ async fn main() -> eyre::Result<()> {
                     //info!("Transaction inserted with ID: {}", tx_id);
 
                     //info!("Transaction table after insertion:\n{:#?}", tx_table);
-    //                 info!("transactions_since_last_timing_event: {}",
-    // transactions_since_last_timing_event);
+                    //                 info!("transactions_since_last_timing_event: {}",
+                    // transactions_since_last_timing_event);
                     let now = SystemTime::now();
                     if SystemTime::now().duration_since(last_time)?.as_secs() >= 1 {
                         last_time = now;
@@ -131,7 +152,7 @@ async fn main() -> eyre::Result<()> {
                         info!("Processed {num_transactions} transactions");
                     }
                 }
-            
+
                 block_table.insert(BlockRow {
                     id: block_id,
                     number: block.number.unwrap_or_default().as_u32(),

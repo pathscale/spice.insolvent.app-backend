@@ -1,6 +1,7 @@
 use worktable::prelude::*;
 use worktable::worktable;
-
+type Address = [u8;  20];
+type TxHash = [u8; 32];
 worktable!(
     name: Block,
     columns: {
@@ -20,12 +21,12 @@ worktable!(
     name: Transaction,
     columns: {
         id: u32 primary_key autoincrement,
-        hash: String,
+        hash: TxHash,
         status: String,
         block_number: u32,
         timestamp_s: u32,
-        from_address: String,
-        to_address: String,
+        from_address: Address,
+        to_address: Address,
         internal_transactions: String,
         // Splitting U256 into four u64 parts for value
         value_high: u64,
