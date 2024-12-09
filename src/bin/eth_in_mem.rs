@@ -1,4 +1,5 @@
 use alloy_primitives::bytes;
+use clap::Parser;
 use ethers::types::U256;
 use ethers::{prelude::BlockId, providers::Middleware};
 use spice_backend::api::*;
@@ -11,17 +12,14 @@ use sysinfo::{Pid, System};
 use tokio::sync::Mutex;
 use tracing::{error, info};
 use tracing_subscriber::FmtSubscriber;
-use clap::Parser;
-
-
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-       #[arg(short, long)]
+    #[arg(short, long)]
     start_block: u32,
 
-        #[arg(short, long)]
+    #[arg(short, long)]
     end_block: u32,
 
     #[arg(short, long)]
@@ -61,16 +59,13 @@ async fn main() -> eyre::Result<()> {
         .finish();
     tracing::subscriber::set_global_default(subscriber)?;
 
-    let args =  Args::parse();
+    let args = Args::parse();
     println!("args: {args:?}");
-    if args.len() != 4 {
-        panic!("Accepts two arguments: start_block end_block");
-    }
 
     let start_block = args.start_block;
     let end_block = args.end_block;
     info!("Processing blocks from {} to {}", start_block, end_block);
-    let url = "http://127.0.0.1:8545".to_string();
+    let url = args.url;
     let api = EthersClient::new(&url, Some("https://eth.llamarpc.com"));
 
     let block_table = BlockWorkTable::default();

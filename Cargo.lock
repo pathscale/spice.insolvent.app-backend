@@ -6852,7 +6852,7 @@ dependencies = [
 [[package]]
 name = "worktable"
 version = "0.4.0"
-source = "git+https://github.com/pathscale/WorkTable.git#7d47af6a31a86e28849c537c95728388f04b07db"
+source = "git+https://github.com/willco-1/WorkTable.git?branch=pageid_mismatch#22958d8e2cb5f68f5b34af0abd051e0467a1bdf0"
 dependencies = [
  "csv",
  "data_bucket",
@@ -6874,7 +6874,7 @@ dependencies = [
 [[package]]
 name = "worktable_codegen"
 version = "0.4.0"
-source = "git+https://github.com/pathscale/WorkTable.git#7d47af6a31a86e28849c537c95728388f04b07db"
+source = "git+https://github.com/willco-1/WorkTable.git?branch=pageid_mismatch#22958d8e2cb5f68f5b34af0abd051e0467a1bdf0"
 dependencies = [
  "convert_case 0.6.0",
  "proc-macro2",
