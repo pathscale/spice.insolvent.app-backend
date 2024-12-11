@@ -1,4 +1,3 @@
-use alloy_primitives::bytes;
 use clap::Parser;
 use ethers::types::U256;
 use ethers::{prelude::BlockId, providers::Middleware};
@@ -12,6 +11,15 @@ use sysinfo::{Pid, System};
 use tokio::sync::Mutex;
 use tracing::{error, info};
 use tracing_subscriber::FmtSubscriber;
+
+
+
+use jemallocator::Jemalloc;
+
+#[cfg(feature = "jemalloc")]
+#[global_allocator]
+static GLOBAL: Jemalloc = Jemalloc;
+
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -143,7 +151,7 @@ async fn main() -> eyre::Result<()> {
                         });
                     }
 
-                    if num_transactions % 10_000 == 0 {
+                    if num_transactions % 5 == 0 {
                         info!("Processed {num_transactions} transactions");
                     }
                 }
@@ -161,7 +169,7 @@ async fn main() -> eyre::Result<()> {
                 //     info!("Block inserted with NUMBER: {}", block_number);
                 // }
 
-                //info!("Block table after insertion:\n{:#?}", block_table);
+                info!("Block table after insertion:\n{:#?}", block_table);
             }
             Ok(None) => error!("Block {} not found", block_number),
             Err(e) => error!("Error fetching block {}: {}", block_number, e),

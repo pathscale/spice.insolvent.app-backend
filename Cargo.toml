@@ -3,9 +3,10 @@ name = "spice-backend"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+jemalloc = ["jemallocator"]
+mimalloc = ["dep:mimalloc"]
 [dependencies]
-
-
 worktable = { git = "https://github.com/willco-1/WorkTable.git", branch = "pageid_mismatch" }
 ##worktable = {path = "../worktable"}
 rkyv = "0.7.42"
@@ -26,12 +27,13 @@ async-trait = "0.1.83"
 web3 = "0.19.0"
 chrono = "0.4.38"
 serde_path_to_error = "0.1.16"
-ethnum = "1.5.0"
 tracing-subscriber = "0.3.19"
 endpoint-libs = {git = "https://github.com/pathscale/endpoint-libs.git", ref = "e864d599370d6f2dee8a55da920671254e98993f"}
 openssl = { version = "*", features = ["vendored"] }
 sysinfo = "0.33.0"
 alloy-primitives = "0.8.14"
 clap = { version = "4.5.23", features = ["derive"] }
+jemallocator = {version = "0.5.4", optional = true }
+mimalloc = { version = "0.1.43", optional = true }
 
 
