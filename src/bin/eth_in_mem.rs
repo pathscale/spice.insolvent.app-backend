@@ -154,7 +154,7 @@ async fn main() -> eyre::Result<()> {
                         });
                     }
 
-                    if num_transactions % 5 == 0 {
+                    if num_transactions % 10_000 == 0 {
                         info!("Processed {num_transactions} transactions");
                     }
                 }
