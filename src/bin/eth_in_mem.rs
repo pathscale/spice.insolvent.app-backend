@@ -12,14 +12,17 @@ use tokio::sync::Mutex;
 use tracing::{error, info};
 use tracing_subscriber::FmtSubscriber;
 
-
-
+#[cfg(feature = "jemalloc")]
 use jemallocator::Jemalloc;
+#[cfg(feature = "mimalloc")]
+use mimalloc::MiMalloc;
 
 #[cfg(feature = "jemalloc")]
 #[global_allocator]
 static GLOBAL: Jemalloc = Jemalloc;
-
+#[cfg(feature = "mimalloc")]
+#[global_allocator]
+static GLOBAL: MiMalloc = MiMalloc;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
