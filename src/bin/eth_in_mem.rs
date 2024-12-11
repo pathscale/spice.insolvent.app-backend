@@ -172,7 +172,7 @@ async fn main() -> eyre::Result<()> {
                 //     info!("Block inserted with NUMBER: {}", block_number);
                 // }
 
-                info!("Block table after insertion:\n{:#?}", block_table);
+                //info!("Block table after insertion:\n{:#?}", block_table);
             }
             Ok(None) => error!("Block {} not found", block_number),
             Err(e) => error!("Error fetching block {}: {}", block_number, e),
