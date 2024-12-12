@@ -5,11 +5,13 @@ edition = "2021"
 
 [features]
 jemalloc = ["jemallocator"]
-mimalloc = ["dep:mimalloc"]
+mimallocator = ["mimalloc"]
+
+
 [dependencies]
-worktable = { git = "https://github.com/willco-1/WorkTable.git", branch = "pageid_mismatch" }
+worktable = { git = "https://github.com/Pathscale/WorkTable.git", branch = "main" }
 ##worktable = {path = "../worktable"}
-rkyv = "0.7.42"
+rkyv = "0.8.9"
 derive_more = "*"
 eyre = "*"
 ethers = "2.0.14"
@@ -34,6 +36,9 @@ sysinfo = "0.33.0"
 alloy-primitives = "0.8.14"
 clap = { version = "4.5.23", features = ["derive"] }
 jemallocator = {version = "0.5.4", optional = true }
-mimalloc = { version = "0.1.43", optional = true }
+mimalloc = { version = "^0.1.0", optional = true }
+lockfree = "0.5.1"
+
+
 
 

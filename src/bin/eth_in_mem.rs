@@ -14,13 +14,13 @@ use tracing_subscriber::FmtSubscriber;
 
 #[cfg(feature = "jemalloc")]
 use jemallocator::Jemalloc;
-#[cfg(feature = "mimalloc")]
+#[cfg(feature = "mimallocator")]
 use mimalloc::MiMalloc;
 
 #[cfg(feature = "jemalloc")]
 #[global_allocator]
 static GLOBAL: Jemalloc = Jemalloc;
-#[cfg(feature = "mimalloc")]
+#[cfg(feature = "mimallocator")]
 #[global_allocator]
 static GLOBAL: MiMalloc = MiMalloc;
 
