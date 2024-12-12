@@ -117,7 +117,7 @@ async fn main() -> eyre::Result<()> {
                     tx_table.insert(TransactionRow {
                         id: tx_id,
                         hash: tx.hash.into(),
-                        status: "processed".to_string(),
+                        status: 1u8,
                         block_number,
                         timestamp_s: block.timestamp.as_u32(),
                         from_address: tx.from.into(),
@@ -164,7 +164,7 @@ async fn main() -> eyre::Result<()> {
                     number: block.number.unwrap_or_default().as_u32(),
                     status: 1u8,
                     timestamp_s: block.timestamp.as_u32(),
-                    transactions: serde_json::to_string(&tx_ids)?,
+                    transactions: tx_ids,
                     eth_price_usd_cents: 0, //TODO: use cmc lookup here
                 })?;
 

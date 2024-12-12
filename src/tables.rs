@@ -6,6 +6,7 @@ use worktable::worktable;
 
 type Address = [u8;  20];
 type TxHash = [u8; 32];
+type  TransactionId = Vec<u32>;
 worktable!(
     name: Block,
     columns: {
@@ -13,7 +14,7 @@ worktable!(
         number: u32,
         status: u8,
         timestamp_s: u32,
-        transactions: String,
+        transactions: TransactionId,
         eth_price_usd_cents: u32,
     }
     indexes: {
@@ -26,7 +27,7 @@ worktable!(
     columns: {
         id: u32 primary_key autoincrement,
         hash: TxHash,
-        status: String,
+        status: u8,
         block_number: u32,
         timestamp_s: u32,
         from_address: Address,
