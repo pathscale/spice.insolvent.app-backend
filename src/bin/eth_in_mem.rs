@@ -69,7 +69,7 @@ async fn main() -> eyre::Result<()> {
     let url = args.url;
     let api = EthersClient::new(&url, Some("https://eth.llamarpc.com"));
 
-    let block_table = BlockWorkTable::default();
+    //let block_table = BlockWorkTable::default();
     let tx_table = TransactionWorkTable::default();
     let current_id = AtomicU32::new(0);
 
@@ -87,7 +87,7 @@ async fn main() -> eyre::Result<()> {
             .await
         {
             Ok(Some(block)) => {
-                let block_id = current_id.fetch_add(1, Ordering::SeqCst);
+                //let block_id = current_id.fetch_add(1, Ordering::SeqCst);
 
                 //info!("Processing block: {:?}", block.number);
                 let mut tx_ids: Vec<u32> = vec![];
@@ -135,18 +135,18 @@ async fn main() -> eyre::Result<()> {
                     }
                 }
 
-                block_table.insert(BlockRow {
-                    id: block_id,
-                    number: block.number.unwrap_or_default().as_u32(),
-                    status: 1u8,
-                    timestamp_s: block.timestamp.as_u32(),
-                    transactions: tx_ids,
-                    eth_price_usd_cents: 0, //TODO: use cmc lookup here
-                })?;
+                // block_table.insert(BlockRow {
+                //     id: block_id,
+                //     number: block.number.unwrap_or_default().as_u32(),
+                //     status: 1u8,
+                //     timestamp_s: block.timestamp.as_u32(),
+                //     transactions: tx_ids,
+                //     eth_price_usd_cents: 0, //TODO: use cmc lookup here
+                // })?;
 
-                if block_number % 10_000 == 0 {
-                     debug!("Block inserted with NUMBER: {}", block_number);
-                 }
+                // if block_number % 10_000 == 0 {
+                //      debug!("Block inserted with NUMBER: {}", block_number);
+                //  }
 
                 //info!("Block table after insertion:\n{:#?}", block_table);
             }
