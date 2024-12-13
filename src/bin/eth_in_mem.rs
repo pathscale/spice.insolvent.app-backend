@@ -2,15 +2,15 @@ use clap::Parser;
 use ethers::{prelude::BlockId, providers::Middleware};
 use spice_backend::api::*;
 use spice_backend::tables::*;
-use tracing::debug;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::Arc;
 use std::time::{Duration, SystemTime};
-use std::{env, process};
-use sysinfo::{Pid, System};
+use sysinfo::System;
 use tokio::sync::Mutex;
 use tracing::{error, info};
 use tracing_subscriber::FmtSubscriber;
+use spice_backend::check_memory_usage;
+
 
 #[cfg(feature = "jemalloc")]
 use jemallocator::Jemalloc;
@@ -37,21 +37,7 @@ struct Args {
     url: String,
 }
 
-async fn check_memory_usage(sys: Arc<Mutex<System>>) {
-    let mut sys = sys.lock().await;
-    sys.refresh_all();
 
-    let pid = process::id();
-    if let Some(process) = sys.process(Pid::from(pid as usize)) {
-        let memory_usage = process.memory() / 1_048_576; // Memory usage in megabytes
-        println!(
-            "Current process (PID: {}): {} MB of memory used",
-            pid, memory_usage
-        );
-    } else {
-        println!("Process not found");
-    }
-}
 
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
