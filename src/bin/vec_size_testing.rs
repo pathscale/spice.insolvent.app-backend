@@ -5,42 +5,35 @@ use spice_backend::check_memory_usage;
 use sysinfo::System;
 use tokio::sync::Mutex;
 use tracing::info;
-use worktable::prelude::*;
-use worktable::worktable;
 
-worktable!(
-    name: SizeTest,
-    columns: {
-        id: u32 primary_key,
-        number: u64,
-    }
-    indexes: {
-        number_idx: number
-    }
-);
+
+struct DummyRow {
+    id: u32,
+    number: u64
+}
 
 #[tokio::main]
 
 async fn main() -> eyre::Result<()> {
     tracing_subscriber::fmt::init();
 
-    let size_test_table = SizeTestWorkTable::default();
-
     let end_number: u32 = 2_200_000_000;
 
     let mut last_time = SystemTime::now();
     let mut number_at_last_timer = 0;
 
+    let mut vec_table: Vec<DummyRow> = vec![];
+
     let sys = Arc::new(Mutex::new(System::new_all()));
 
 
     for i in 0..=end_number {
-        let test_row = SizeTestRow {
-            id: i,
+        let dummy_row = DummyRow {
+            id: 1,
             number: i as u64,
         };
 
-        size_test_table.insert(test_row)?;
+        vec_table.push(dummy_row);
 
         let now = SystemTime::now();
         if SystemTime::now().duration_since(last_time)?.as_secs() >= 1 {
