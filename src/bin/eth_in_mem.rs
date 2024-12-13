@@ -1,5 +1,4 @@
 use clap::Parser;
-use ethers::types::U256;
 use ethers::{prelude::BlockId, providers::Middleware};
 use spice_backend::api::*;
 use spice_backend::tables::*;
@@ -35,16 +34,6 @@ struct Args {
 
     #[arg(short, long)]
     url: String,
-}
-
-fn u256_to_u64_quads(value: U256) -> [u64; 4] {
-    let mut quads = [0u64; 4];
-
-    for i in 0..4 {
-        quads[3 - i] = (value >> (i * 64)).low_u64();
-    }
-
-    quads
 }
 
 async fn check_memory_usage(sys: Arc<Mutex<System>>) {
@@ -89,7 +78,7 @@ async fn main() -> eyre::Result<()> {
     let mut txs_at_last_timer = num_transactions;
 
     // Create a new System object
-    let mut sys = Arc::new(Mutex::new(System::new_all()));
+    let sys = Arc::new(Mutex::new(System::new_all()));
 
     for block_number in start_block..=end_block {
         match api
@@ -106,11 +95,6 @@ async fn main() -> eyre::Result<()> {
                     num_transactions += 1;
                     let tx_id = current_id.fetch_add(1, Ordering::SeqCst);
                     tx_ids.push(tx_id);
-                    let value_quads = u256_to_u64_quads(tx.value);
-                    let fee_quads = u256_to_u64_quads(
-                        U256::from(tx.gas.as_u64()) * tx.gas_price.unwrap_or_default(),
-                    );
-                    let gas_price_quads = u256_to_u64_quads(tx.gas_price.unwrap_or_default());
 
                     //info!("Transaction details: {:?}", tx);
 
@@ -121,20 +105,11 @@ async fn main() -> eyre::Result<()> {
                         block_number,
                         timestamp_s: block.timestamp.as_u32(),
                         from_address: tx.from.into(),
-                        to_address: tx.to.map_or([0u8; 20], |h160| h160.into()),
-                        internal_transactions: "".to_string(), //TODO: this needs to be fetched
-                        value_high: value_quads[3],
-                        value_mid_high: value_quads[2],
-                        value_mid_low: value_quads[1],
-                        value_low: value_quads[0],
-                        fee_high: fee_quads[3], // ugh
-                        fee_mid_high: fee_quads[2],
-                        fee_mid_low: fee_quads[1],
-                        fee_low: fee_quads[0],
-                        gas_price_high: gas_price_quads[3],
-                        gas_price_mid_high: gas_price_quads[2],
-                        gas_price_mid_low: gas_price_quads[1],
-                        gas_price_low: gas_price_quads[0],
+                        to_address: tx.to.map(|address| address.into()),
+                        //internal_transactions: "".to_string(), //TODO: this needs to be fetched
+                        value: tx.value.into(),
+                        fee: tx.gas.saturating_mul(tx.gas_price.unwrap_or_default()).into(),
+                        gas: tx.gas_price.map(|gas_price| gas_price.into()),
                     })?;
                     //info!("Transaction inserted with ID: {}", tx_id);
 

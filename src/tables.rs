@@ -1,10 +1,12 @@
 use worktable::prelude::*;
 use worktable::worktable;
 
+use crate::rkyv_wrappers::WrappedAddress;
+use crate::rkyv_wrappers::WrappedU256;
 
 
 
-type Address = [u8;  20];
+
 type TxHash = [u8; 32];
 type  TransactionId = Vec<u32>;
 worktable!(
@@ -30,23 +32,12 @@ worktable!(
         status: u8,
         block_number: u32,
         timestamp_s: u32,
-        from_address: Address,
-        to_address: Address,
-        internal_transactions: String,
-        // Splitting U256 into four u64 parts for value
-        value_high: u64,
-        value_mid_high: u64,
-        value_mid_low: u64,
-        value_low: u64,
-        // Similarly for fee and gas_price
-        fee_high: u64,
-        fee_mid_high: u64,
-        fee_mid_low: u64,
-        fee_low: u64,
-        gas_price_high: u64,
-        gas_price_mid_high: u64,
-        gas_price_mid_low: u64,
-        gas_price_low: u64,
+        from_address: WrappedAddress,
+        to_address: WrappedAddress optional,
+        //internal_transactions: String,
+        value: WrappedU256,
+        fee: WrappedU256,
+        gas: WrappedU256 optional,
     }
     indexes: {
         hash_idx: hash
