@@ -2,6 +2,7 @@ use clap::Parser;
 use ethers::{prelude::BlockId, providers::Middleware};
 use spice_backend::api::*;
 use spice_backend::tables::*;
+use tracing::debug;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::Arc;
 use std::time::{Duration, SystemTime};
@@ -129,7 +130,7 @@ async fn main() -> eyre::Result<()> {
                         });
                     }
 
-                    if num_transactions % 10_000 == 0 {
+                    if num_transactions % 50_000 == 0 {
                         info!("Processed {num_transactions} transactions");
                     }
                 }
@@ -144,7 +145,7 @@ async fn main() -> eyre::Result<()> {
                 })?;
 
                 if block_number % 10_000 == 0 {
-                     info!("Block inserted with NUMBER: {}", block_number);
+                     debug!("Block inserted with NUMBER: {}", block_number);
                  }
 
                 //info!("Block table after insertion:\n{:#?}", block_table);
