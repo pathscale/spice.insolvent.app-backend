@@ -34,7 +34,7 @@ async fn main() -> eyre::Result<()> {
 
     for i in 0..=end_number {
         let test_row = SizeTestRow {
-            id: 1,
+            id: i,
             number: i as u64,
         };
 
